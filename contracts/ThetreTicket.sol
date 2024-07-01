@@ -98,6 +98,24 @@ contract ThetreTicket is
         super._transfer(from, to, tokenId);
     }
 
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override(ERC721Upgradeable, IERC721) {
+        require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
+        super.transferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override(ERC721Upgradeable, IERC721) {
+        require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
+        super.safeTransferFrom(from, to, tokenId);
+    }
+
     function _increaseBalance(address account, uint128 value)
         internal
         override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
