@@ -19,6 +19,7 @@ contract ThetreTicket is
     ERC721BurnableUpgradeable 
 {
     uint256 private _tokenIdCounter;
+    mapping(uint256 => uint256) private _expirationTimestamps;
     
     string private _baseTokenURI;
 
@@ -39,26 +40,35 @@ contract ThetreTicket is
     }
 
 
-    function safeMint() public payable {
+    function safeMint(uint256 expiration) public onlyOwner {
         uint256 tokenId = _tokenIdCounter;
-
+        _expirationTimestamps[tokenId] = expiration;
         _tokenIdCounter+=1;
         _safeMint(msg.sender, tokenId);
+    }
+
+    function transfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public {
+        _transfer(from, to, tokenId);
     }
 
     function ownedTokens(address _owner) public view returns(uint256[] memory ownerTokens) {
         uint256 tokenCount = balanceOf(_owner);
 
         if (tokenCount == 0) {
-            // Return an empty array
             return new uint256[](0);
         } else {
             uint256[] memory result = new uint256[](tokenCount);
             uint256 resultIndex = 0;
 
             uint256 index;
+            uint256 token;
             for (index = 0; index < tokenCount; index++) {
-                result[resultIndex] = tokenOfOwnerByIndex(_owner ,index);
+                token = tokenOfOwnerByIndex(_owner ,index);
+                result[resultIndex] = token;
                 resultIndex++;
             }
             return result;
@@ -78,6 +88,15 @@ contract ThetreTicket is
     }
 
     // Overrides
+
+     function _transfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override {
+        require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
+        super._transfer(from, to, tokenId);
+    }
 
     function _increaseBalance(address account, uint128 value)
         internal
