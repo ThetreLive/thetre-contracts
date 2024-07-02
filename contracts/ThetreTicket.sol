@@ -28,7 +28,7 @@ contract ThetreTicket is
         _disableInitializers();
     }
 
-    function initialize(string memory name, string memory symbol, string memory baseTokenURI, uint256 maxTokenSupply, uint256 tokenPrice, address ownerAddress) initializer public {
+    function initialize(string memory name, string memory symbol, string memory baseTokenURI, address ownerAddress) initializer public {
         __ERC721_init(name, symbol);
         __ERC721Enumerable_init();
         __ERC721URIStorage_init();
@@ -52,7 +52,8 @@ contract ThetreTicket is
         address to,
         uint256 tokenId
     ) public {
-        _transfer(from, to, tokenId);
+        require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
+        super._transfer(from, to, tokenId);
     }
 
     function ownedTokens(address _owner) public view returns(uint256[] memory ownerTokens) {
@@ -89,15 +90,6 @@ contract ThetreTicket is
 
     // Overrides
 
-     function _transfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override {
-        require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
-        super._transfer(from, to, tokenId);
-    }
-
     function transferFrom(
         address from,
         address to,
@@ -105,15 +97,6 @@ contract ThetreTicket is
     ) public virtual override(ERC721Upgradeable, IERC721) {
         require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
         super.transferFrom(from, to, tokenId);
-    }
-
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public virtual override(ERC721Upgradeable, IERC721) {
-        require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
-        super.safeTransferFrom(from, to, tokenId);
     }
 
     function _increaseBalance(address account, uint128 value)
@@ -137,7 +120,7 @@ contract ThetreTicket is
         override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
         returns (string memory)
     {
-        _expirationTimestamps[tokenId] < block.timestamp ? string.concat(baseURI(), "expired") : super.tokenURI(tokenId);
+        return _expirationTimestamps[tokenId] < block.timestamp ? string.concat(baseURI(), "expired") : super.tokenURI(tokenId);
     }
 
     function supportsInterface(bytes4 interfaceId)
