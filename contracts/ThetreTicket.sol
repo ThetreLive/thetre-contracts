@@ -111,6 +111,7 @@ contract ThetreTicket is
         uint256 tokenId,
         address auth
     ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) returns (address) {
+        require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
         return super._update(to, tokenId, auth);
     }
 
