@@ -72,7 +72,7 @@ contract DAOVoting is ZKTree, ReentrancyGuard {
         require(_option <= numOptions, "Invalid option!");
         require(thetreVoteToken.balanceOf(msg.sender) >= _tokensToUse, "Insufficient tokens");
         
-        thetreVoteToken.transferFrom(msg.sender, address(this), _tokensToUse);
+        thetreVoteToken.transferFrom(msg.sender, address(0), _tokensToUse);
 
         _nullify(
             bytes32(_nullifier),
