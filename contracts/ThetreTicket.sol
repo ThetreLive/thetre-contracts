@@ -137,7 +137,7 @@ contract ThetreTicket is
         override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
         returns (string memory)
     {
-        return super.tokenURI(tokenId);
+        _expirationTimestamps[tokenId] < block.timestamp ? string.concat(baseURI(), "expired") : super.tokenURI(tokenId);
     }
 
     function supportsInterface(bytes4 interfaceId)
