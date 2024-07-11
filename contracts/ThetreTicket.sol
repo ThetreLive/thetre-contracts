@@ -137,6 +137,10 @@ contract ThetreTicket is
         return _baseTokenURI;
     }
 
+    function hasExpired(uint256 tokenId) public view returns (bool) {
+        return _expirationTimestamps[tokenId] < block.timestamp;
+    }
+
     function baseURI() public view returns (string memory) {
         return _baseTokenURI;
     }
