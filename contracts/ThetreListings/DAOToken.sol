@@ -7,7 +7,17 @@ import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Vo
 import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 
 contract DAOToken is ERC20, ERC20Permit, ERC20Votes {
-    constructor() ERC20("DAOToken", "tDTK") ERC20Permit("DAOToken") {}
+    address public owner;
+    constructor() ERC20("DAOToken", "tDTK") ERC20Permit("DAOToken") {
+        owner = msg.sender;
+    }
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can perform this action");
+        _;
+    }
+    function mint(address to, uint256 amount) public onlyOwner{
+        _mint(to, amount);
+    }
 
     // Overrides IERC6372 functions to make the token & governor timestamp-based
 
@@ -26,7 +36,7 @@ contract DAOToken is ERC20, ERC20Permit, ERC20Votes {
         super._update(from, to, amount);
     }
 
-    function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
-        return super.nonces(owner);
+    function nonces(address _owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
+        return super.nonces(_owner);
     }
 }
