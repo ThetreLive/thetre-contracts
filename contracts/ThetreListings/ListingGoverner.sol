@@ -13,7 +13,7 @@ contract ListingGoverner is Governor, GovernorCountingSimple, GovernorVotes, Gov
     constructor(IVotes _token, TimelockController _timelock)
         Governor("ListingGoverner")
         GovernorVotes(_token)
-        GovernorVotesQuorumFraction(4)
+        GovernorVotesQuorumFraction(2)
         GovernorTimelockControl(_timelock)
     {}
 
