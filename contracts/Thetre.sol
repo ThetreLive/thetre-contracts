@@ -2,6 +2,8 @@
 pragma solidity ^0.8.24;
 
 import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
 import {ThetreTicket} from "./ThetreTicket.sol";
 
 contract Thetre {
@@ -28,6 +30,7 @@ contract Thetre {
     function listMovie(string memory _movieName, string memory baseTokenURI) public {
         require(movieTicket[_movieName] == address(0), "Movie already listed");
         require(msg.sender == address(timelock), "Only timelock can perform this action");
+        
         ThetreTicket newTicket = new ThetreTicket();
         newTicket.initialize(_movieName, _movieName, baseTokenURI, address(this));
         movieTicket[_movieName] = address(newTicket);
@@ -39,6 +42,8 @@ contract Thetre {
         require(movieTicket[_movieName] != address(0), "Movie Not listed");
         require(discountTickets[discountNFT] != 0, "No Discount");
         require(msg.value > ticketPrice, "Insufficient funds");
+        require(ERC721(discountNFT).balanceOf(msg.sender) > 0, "No Discount NFT");
+
         ThetreTicket ticketNFT = ThetreTicket(movieTicket[_movieName]);
         ticketNFT.safeMint(block.timestamp + 365 days);
         (bool success, ) = payable(msg.sender). call{value: discountTickets[discountNFT]}("");
