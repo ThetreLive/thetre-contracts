@@ -16,13 +16,13 @@ contract ListingGoverner is Governor, GovernorCountingSimple, GovernorVotes, Gov
         GovernorVotesQuorumFraction(2)
         GovernorTimelockControl(_timelock)
     {}
-
+    // timings to be changed in production
     function votingDelay() public pure virtual override returns (uint256) {
-        return 1 days;
+        return 20 minutes;
     }
 
     function votingPeriod() public pure virtual override returns (uint256) {
-        return 1 weeks;
+        return 1 hours;
     }
 
     function proposalThreshold() public pure virtual override returns (uint256) {
