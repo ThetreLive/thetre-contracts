@@ -20,6 +20,11 @@ async function main() {
 
   console.log("Token deployed to:", token.address);
 
+  const tx = await token.mint(deployer.address, "1000000000000000000000000");
+  await tx.wait();
+
+  console.log("Minted 1,000,000 tokens to deployer. Hash - ", tx.hash);
+
   // Deploy the ListingGoverner
   const ListingGoverner = await ethers.getContractFactory("ListingGoverner");
   const governor = await ListingGoverner.deploy(token.address, timelock.address);

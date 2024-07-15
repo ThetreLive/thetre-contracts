@@ -7,7 +7,7 @@ async function main() {
 
     const Thetre = await ethers.getContractFactory("Thetre");
     // replace with timelock address
-    const thetre = await Thetre.deploy("");
+    const thetre = await Thetre.deploy("0xB4e7d6cF228a6cB316FeEcf4700BE133257eFF47");
 
     await thetre.deployed();
 
