@@ -19,14 +19,8 @@ contract ThetreTicket is
     ERC721BurnableUpgradeable 
 {
     uint256 private _tokenIdCounter;
-    mapping(uint256 => uint256) private _expirationTimestamps;
     
     string private _baseTokenURI;
-
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
 
     function initialize(string memory name, string memory symbol, string memory baseTokenURI, address ownerAddress) initializer public {
         __ERC721_init(name, symbol);
@@ -40,11 +34,10 @@ contract ThetreTicket is
     }
 
 
-    function safeMint(uint256 expiration) public onlyOwner {
+    function mint(address tokenOwner) public onlyOwner {
         uint256 tokenId = _tokenIdCounter;
-        _expirationTimestamps[tokenId] = expiration;
         _tokenIdCounter+=1;
-        _safeMint(msg.sender, tokenId);
+        _mint(tokenOwner, tokenId);
     }
 
     function transfer(
@@ -52,7 +45,6 @@ contract ThetreTicket is
         address to,
         uint256 tokenId
     ) public {
-        require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
         super._transfer(from, to, tokenId);
     }
 
@@ -95,7 +87,6 @@ contract ThetreTicket is
         address to,
         uint256 tokenId
     ) public virtual override(ERC721Upgradeable, IERC721) {
-        require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
         super.transferFrom(from, to, tokenId);
     }
 
@@ -111,7 +102,6 @@ contract ThetreTicket is
         uint256 tokenId,
         address auth
     ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) returns (address) {
-        require(_expirationTimestamps[tokenId] > block.timestamp, "The ticket has already expired");
         return super._update(to, tokenId, auth);
     }
 
@@ -121,7 +111,7 @@ contract ThetreTicket is
         override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
         returns (string memory)
     {
-        return _expirationTimestamps[tokenId] < block.timestamp ? string.concat(baseURI(), "expired") : super.tokenURI(tokenId);
+        return super.tokenURI(tokenId);
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -135,10 +125,6 @@ contract ThetreTicket is
 
     function _baseURI() internal view virtual override returns (string memory) {
         return _baseTokenURI;
-    }
-
-    function hasExpired(uint256 tokenId) public view returns (bool) {
-        return _expirationTimestamps[tokenId] < block.timestamp;
     }
 
     function baseURI() public view returns (string memory) {
