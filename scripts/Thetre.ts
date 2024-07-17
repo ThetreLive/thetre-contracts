@@ -12,6 +12,10 @@ async function main() {
     await thetre.deployed();
 
     console.log("ThetreTicket deployed to:", thetre.address);
+
+    const ticketPrice = ethers.utils.parseEther("10");
+    await thetre.setTicketPrice(ticketPrice);
+    console.log("Ticket price set to 10 TFUEL.");
 }
 
 main()
