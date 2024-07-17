@@ -29,7 +29,7 @@ contract Thetre {
 
     function listMovie(string memory _movieName, string memory baseTokenURI) public {
         require(movieTicket[_movieName] == address(0), "Movie already listed");
-        require(msg.sender == address(timelock), "Only timelock can perform this action");
+        require(msg.sender == address(timelock) || msg.sender == owner, "Not authorized");
         
         ThetreTicket newTicket = new ThetreTicket();
         newTicket.initialize(_movieName, _movieName, baseTokenURI, address(this));
