@@ -38,6 +38,16 @@ contract Thetre {
         emit MovieListed(_movieName, address(newTicket));
     }
 
+    function buyTicket(string memory _movieName) public payable{
+        require(movieTicket[_movieName] != address(0), "Movie Not listed");
+        require(msg.value > ticketPrice, "Insufficient funds");
+
+        ThetreTicket ticketNFT = ThetreTicket(movieTicket[_movieName]);
+        ticketNFT.safeMint(block.timestamp + 365 days);
+
+        emit BoughtTicket(_movieName, msg.sender);
+    }
+
     function buyTicket(string memory _movieName, address discountNFT) public payable{
         require(movieTicket[_movieName] != address(0), "Movie Not listed");
         require(discountTickets[discountNFT] != 0, "No Discount");
