@@ -12,15 +12,19 @@ contract Thetre {
 
     mapping(string => address) public movieTicket;
     mapping(string => string) public movieVideos;
+    mapping(address => uint256) private subscriptions;
     mapping(address => uint256) private discountTickets;
 
     TimelockController private timelock;
     address private owner;
     uint256 private ticketPrice;
+    uint256 private subscriptionPrice;
+    uint256 private subscriptionDuration;
 
-    constructor (TimelockController _timelock) {
+    constructor (TimelockController _timelock, uint256 _subscriptionDuration) {
         timelock = _timelock;
         owner = msg.sender;
+        subscriptionDuration = _subscriptionDuration;
     }
 
     modifier onlyOwner() {
@@ -49,6 +53,13 @@ contract Thetre {
         emit BoughtTicket(_movieName, msg.sender);
     }
 
+    function buySubscription() public payable{
+        require(msg.value >= subscriptionPrice, "Insufficient funds");
+        subscriptions[msg.sender] = block.timestamp + subscriptionDuration;
+
+        emit BoughtTicket("Subscription", msg.sender);
+    }
+
     function buyDiscountedTicket(string memory _movieName, address discountNFT) public payable{
         require(movieTicket[_movieName] != address(0), "Movie Not listed");
         require(discountTickets[discountNFT] != 0, "No Discount");
@@ -73,5 +84,13 @@ contract Thetre {
 
     function setTicketPrice(uint256 _ticketPrice) public onlyOwner {
         ticketPrice = _ticketPrice;
+    }
+
+    function setSubscriptionPrice(uint256 _subscriptionPrice) public onlyOwner {
+        subscriptionPrice = _subscriptionPrice;
+    }
+
+    function balanceOf(address _owner) public view virtual returns(uint256) {
+        return subscriptions[_owner] > block.timestamp ? 1 : 0;
     }
 }
